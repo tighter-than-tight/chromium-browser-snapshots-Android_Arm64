@@ -2,7 +2,7 @@ name: Publish Latest APK Snapshot
 
 on:
   schedule:
-    - cron: '0 4 * * *'  # Runs daily at 4 AM UTC
+    - cron: '*/15 * * * *'  # Runs every 15 minutes
   workflow_dispatch: {}    # Allows you to run this workflow manually
 
 jobs:
@@ -19,7 +19,7 @@ jobs:
       - name: Download LAST_CHANGE and get version
         id: get_version
         run: |
-          curl -Lfso LAST_CHANGE "https://www.googleapis.com/download/storage/v1/b/chromium-browser-snapshots/o/AndroidDesktop_arm64%2FLAST_CHANGE?alt=media"
+          curl -Lfso LAST_CHANGE "https://www.googleapis.com/download/storage/v1/b/chromium-browser-snapshots/o/Android_Arm64%2FLAST_CHANGE?alt=media"
           VERSION=$(cat LAST_CHANGE)
           echo "VERSION=$VERSION" >> $GITHUB_ENV
           echo "version_tag=$VERSION" >> $GITHUB_OUTPUT
@@ -40,9 +40,9 @@ jobs:
       - name: Download Snapshot Zip
         if: steps.check_release.outputs.exists == 'false'
         run: |
-          SNAPSHOT_URL="https://www.googleapis.com/download/storage/v1/b/chromium-browser-snapshots/o/AndroidDesktop_arm64%2F${{ env.VERSION }}%2Fchrome-android-desktop.zip?alt=media"
+          SNAPSHOT_URL="https://www.googleapis.com/download/storage/v1/b/chromium-browser-snapshots/o/Android_Arm64%2F${{ env.VERSION }}%2Fchrome-android.zip?alt=media"
           echo "Downloading $SNAPSHOT_URL"
-          curl -Lfso chrome-android-desktop.zip "$SNAPSHOT_URL"
+          curl -Lfso chrome-android.zip "$SNAPSHOT_URL"
 
       # --- MODIFIED STEP ---
       - name: Unzip APK
@@ -50,7 +50,7 @@ jobs:
         run: |
           # Use unzip to extract only the specific file we need
           # The -j flag junks the path, dropping the directories and saving just the file
-          unzip -j chrome-android-desktop.zip "chrome-android-desktop/apks/ChromePublic.apk"
+          unzip -j chrome-android-desktop.zip "chrome-android/apks/ChromePublic.apk"
           
           # Now we know the exact filename
           echo "APK_FILE=ChromePublic.apk" >> $GITHUB_ENV
@@ -61,7 +61,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           tag_name: "${{ env.VERSION }}"
-          name: "Chromium Android Desktop Snapshot ${{ env.VERSION }}"
+          name: "Chromium Android Arm64 Snapshot ${{ env.VERSION }}"
           # Use the exact filename
           files: "ChromePublic.apk"
         env:
