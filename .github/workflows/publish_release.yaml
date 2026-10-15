@@ -50,7 +50,7 @@ jobs:
         run: |
           # Use unzip to extract only the specific file we need
           # The -j flag junks the path, dropping the directories and saving just the file
-          unzip -j chrome-android-desktop.zip "chrome-android/apks/ChromePublic.apk"
+          unzip -j chrome-android.zip "chrome-android/apks/ChromePublic.apk"
           
           # Now we know the exact filename
           echo "APK_FILE=ChromePublic.apk" >> $GITHUB_ENV
